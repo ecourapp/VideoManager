@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% block title %} Videos {% endblock %}
+{% block content %}
+<style>
+    .videos-holder {
+        flex-wrap: wrap;
+        column-gap: 20px;
+    }
+
+    .card {
+        margin-bottom: 20px;
+        width: 32%;
+    }
+
+    @media (max-width:750px) {
+        .card {
+            width: 100%;
+        }
+    }
+</style>
+<div class="bg-light p-3 rounded d-flex videos-holder">
+</div>
+<nav aria-label="...">
+    <ul class="pagination">
+        <li class="page-item {% if not has_prev %}disabled{% endif %}">
+            <a class="page-link" href="?page={{prev}}" tabindex="-1">Previous</a>
+        </li>
+        {% for i in page_obj %}
+        <li class="page-item {% if page == i%}active{% endif %}">
+            <a class="page-link" href="?page={{i}}">{{i}} <span class="sr-only"></span></a>
+        </li>
+        {% endfor %}
+        <li class="page-item {% if not has_next %}disabled{% endif %}">
+            <a class="page-link" href="?page={{next}}">Next</a>
+        </li>
+    </ul>
+</nav>
+
+{% endblock %}
+
+{% block script %}
+<script>
+    const holder = document.querySelector('.videos-holder');
+    function getVideos() {
+        let url = `{% url "home:list" %}${window.location.search}`;
+        let all_elements = "";
+        let xhr = new XMLHttpRequest();
+        xhr.open('GET', url);
+        xhr.onload = () => {
+            let jsoned = JSON.parse(xhr.responseText);
+            jsoned.forEach(element => {
+                all_elements += `<div class="card">
+                    <img src="${element.gif}" class="card-img-top" alt="..." style="height:200px">
+                    <div class="card-body">
+                        <h5 class="card-title">${element.title}</h5>
+                        <p class="card-text"></p>
+                        <div class="row">
+                            <div class="col-6">
+                                <a href="/video/online/${element.uuid}" class="btn btn-primary">Watch Online</a>
+                            </div>
+                            <div class="col-6">
+                                <a href="/video/delete/${element.uuid}?next={{page}}" class="btn btn-danger">Delete</a>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>`;
+            });
+            holder.innerHTML = all_elements;
+        }
+        xhr.send();
+    }
+    function Search(value) {
+        let url = `/search/${value}`;
+        let all_elements = "";
+        let xhr = new XMLHttpRequest();
+        xhr.open('GET', url);
+        xhr.onload = () => {
+            let jsoned = JSON.parse(xhr.responseText);
+            jsoned.forEach(element => {
+                all_elements += `<div class="card">
+                    <img src="${element.gif}" class="card-img-top" alt="..." style="height:200px">
+                    <div class="card-body">
+                        <h5 class="card-title">${element.title}</h5>
+                        <p class="card-text"></p>
+                        <div class="row">
+                            <div class="col-6">
+                                <a href="/video/online/${element.uuid}" class="btn btn-primary">Watch Online</a>
+                            </div>
+                            <div class="col-6">
+                                <a href="/video/delete/${element.uuid}" class="btn btn-danger">Delete</a>
+                            </div>
+    
+                        </div>
+                    </div>
+                </div>`;
+            });
+            holder.innerHTML = all_elements;
+        }
+        xhr.send();
+    }
+    getVideos();
+    const searchInput = document.getElementById('search-input');
+    let videos = document.querySelectorAll('.card');
+    searchInput.onkeyup = () => {
+        let value = searchInput.value;
+        if (value !== '') {
+            Search(value);
+        } else {
+            getVideos();
+        }
+
+
+    }
+</script>
+{% endblock %}

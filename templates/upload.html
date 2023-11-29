@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %} Uplaod Video {% endblock %}
+{% block content %}
+<div class="container">
+    <div class="bg-light p-5 rounded">
+        <form method="POST" action="{% url 'upload:index' %}" enctype="multipart/form-data">
+            {% if errors %}
+            <h2>{{ errors }}</h2>
+            {% endif %}
+            {% csrf_token %}
+            <legend>اضافه کردن ویدیو</legend>
+            <div class="mb-3 lg-6 sm-12">
+                <label for="id_amount" class="form-label">عنوان</label>
+                <input type="text" id="id_amount" class="form-control" name="title">
+            </div>
+            <div class="mb-3 lg-6 sm-12">
+                <label for="id_cast" class="form-label">بازیگران</label>
+                <select class="form-select" aria-label="Select actor" id="id_cast" name="cast" multiple>
+                    {% for actor in actors%}
+                    <option value="{{actor.pk}}">{{actor.name}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3 lg-6 sm-12">
+                <label for="formFile" class="form-label">فایل ویدیو</label>
+                <input class="form-control" type="file" id="formFile" name="video">
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
